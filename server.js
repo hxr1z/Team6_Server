@@ -38,17 +38,20 @@ app.get('/recyclables', async (req,res) => {
 // CREATE: Add a new recyclable item
 app.post('/additem', async (req, res) => {
     const { name, type, quantity, date } = req.body;
+    let connection; // 1. Declare outside
     try {
-        let connection = await mysql.createConnection(dbConfig);
+        connection = await mysql.createConnection(dbConfig);
         const query = 'INSERT INTO recyclables (name, type, quantity, date) VALUES (?, ?, ?, ?)';
 
         await connection.execute(query, [name, type, quantity, date]);
-        await connection.end();
+        // await connection.end();  <-- REMOVE THIS from here
 
         res.status(201).json({ message: `${name} added successfully to recyclables` });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error adding item' });
+    } finally {
+        if(connection) await connection.end(); // 2. Close in finally
     }
 });
 
@@ -56,32 +59,36 @@ app.post('/additem', async (req, res) => {
 app.put('/updateitem/:id', async (req, res) => {
     const { id } = req.params;
     const { name, type, quantity, date } = req.body;
+    let connection; // 1. Declare outside
     try {
-        let connection = await mysql.createConnection(dbConfig);
+        connection = await mysql.createConnection(dbConfig);
         const query = 'UPDATE recyclables SET name = ?, type = ?, quantity = ?, date = ? WHERE id = ?';
 
         await connection.execute(query, [name, type, quantity, date, id]);
-        await connection.end();
-
+        
         res.json({ message: 'Recyclable item updated successfully' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error updating item' });
+    } finally {
+        if(connection) await connection.end(); // 2. Close in finally
     }
 });
 
 // DELETE: Remove an item by ID
 app.delete('/deleteitem/:id', async (req, res) => {
     const { id } = req.params;
+    let connection; // 1. Declare outside
     try {
-        let connection = await mysql.createConnection(dbConfig);
+        connection = await mysql.createConnection(dbConfig);
         await connection.execute('DELETE FROM recyclables WHERE id = ?', [id]);
-        await connection.end();
-
+        
         res.json({ message: `Item with ID ${id} deleted successfully` });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error deleting item' });
+    } finally {
+        if(connection) await connection.end(); // 2. Close in finally
     }
 });
 
