@@ -22,13 +22,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/recyclables', async (req,res) => {
+    let connection; 
     try {
-        let connection = await mysql.createConnection(dbConfig);
+        connection = await mysql.createConnection(dbConfig); // Create connection
         const [rows] = await connection.execute('SELECT * FROM defaultdb.recyclables');
         res.json(rows);
     } catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Server error for recyclables'});
+        res.status(500).json({message: 'Server error'});
+    } finally {
+        if (connection) await connection.end(); 
     }
 });
 
