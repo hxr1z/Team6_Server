@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 app.get('/recyclables', async (req,res) => {
     let connection; 
     try {
-        connection = await mysql.createConnection(dbConfig); // Create connection
+        connection = await mysql.createConnection(dbConfig); 
         const [rows] = await connection.execute('SELECT * FROM defaultdb.recyclables');
         res.json(rows);
     } catch (err) {
@@ -35,7 +35,6 @@ app.get('/recyclables', async (req,res) => {
     }
 });
 
-// CREATE: Add a new recyclable item
 app.post('/additem', async (req, res) => {
     const { name, type, quantity, date } = req.body;
     try {
@@ -52,11 +51,10 @@ app.post('/additem', async (req, res) => {
     }
 });
 
-// UPDATE: Modify an existing item by ID
 app.put('/updateitem/:id', async (req, res) => {
     const { id } = req.params;
     const { name, type, quantity, date } = req.body;
-    let connection; // 1. Declare outside
+    let connection; 
     try {
         connection = await mysql.createConnection(dbConfig);
         const query = 'UPDATE recyclables SET name = ?, type = ?, quantity = ?, date = ? WHERE id = ?';
@@ -68,14 +66,13 @@ app.put('/updateitem/:id', async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Server error updating item' });
     } finally {
-        if(connection) await connection.end(); // 2. Close in finally
+        if(connection) await connection.end(); 
     }
 });
 
-// DELETE: Remove an item by ID
 app.delete('/deleteitem/:id', async (req, res) => {
     const { id } = req.params;
-    let connection; // 1. Declare outside
+    let connection; 
     try {
         connection = await mysql.createConnection(dbConfig);
         await connection.execute('DELETE FROM recyclables WHERE id = ?', [id]);
@@ -85,7 +82,7 @@ app.delete('/deleteitem/:id', async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Server error deleting item' });
     } finally {
-        if(connection) await connection.end(); // 2. Close in finally
+        if(connection) await connection.end();
     }
 });
 
